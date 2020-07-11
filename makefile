@@ -1,4 +1,4 @@
-.SUFFIXES:.c .o
+.SUFFIXES:.cpp .o
 
 CC=g++
 
