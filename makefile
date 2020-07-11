@@ -1,6 +1,6 @@
 .SUFFIXES:.cpp .o
 
-CC=g++
+CC=g++ -fPIC
 
 SRCS=main.cpp
 OBJS=$(SRCS:.cpp=.o)
