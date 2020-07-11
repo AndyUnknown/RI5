@@ -1,9 +1,9 @@
 .SUFFIXES:.c .o
 
-CC=gcc
+CC=g++
 
 SRCS=main.cpp
-OBJS=$(SRCS:.c=.o)
+OBJS=$(SRCS:.cpp=.o)
 EXEC=main
 
 start: $(OBJS)
