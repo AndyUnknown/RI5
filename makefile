@@ -5,10 +5,6 @@ CC=g++ -fPIC
 SRCS=main.cpp
 OBJS=$(SRCS:.cpp=.o)
 EXEC=main
-
-start: $(OBJS)
-	$(CC) -o $(EXEC) $(OBJS)
-
 .cpp.o:
 	$(CC) -Wall -o $@ -cpp $<
 
