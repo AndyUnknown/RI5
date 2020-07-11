@@ -812,7 +812,7 @@ struct instruction
         }
     }
 };
-void main()
+int main()
 {
     ;
     char operation[32];
@@ -843,7 +843,7 @@ void main()
 
             inst.decode();
 
- //           out << "operation ";  
+ //           out << "operation ";
  //           print_thing(inst.op);
  //           out << endl;
 
@@ -858,4 +858,7 @@ void main()
         
     }
         
+    return 0;
+
+
 }
