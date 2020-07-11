@@ -7,7 +7,7 @@ int rom[1 << 20];
 unsigned int pc = 0;
 unsigned int regs[32];
 bool flag=true;
-ofstream out;
+//ofstream out;
 
 
 enum INSTRUCTIONS {
@@ -49,7 +49,7 @@ enum INSTRUCTIONS {
     OR,
     AND
 };
-
+/*
 void print_thing(int i)
 {
     switch (i)
@@ -167,6 +167,7 @@ void print_thing(int i)
         break;
     }
 }
+*/
 int X_to_D(char* s, int X_len)
 {
     char* tmp;
@@ -818,7 +819,7 @@ int main()
     for (int i = 0;i < (1 << 20);++i)
         rom[i] = 0;
 
-    out.open("res.txt");
+//    out.open("res.txt");
     read_in();
     int tick = 1;
     while(1)
@@ -833,28 +834,24 @@ int main()
         {
             
 //            cout << hex << pc << dec ;
-            out <<dec << "current tick "<<tick<<'\t';
+//            out <<dec << "current tick "<<tick<<'\t';
             regs[0] = 0;
             instruction inst(operation);
 
-            out << hex << operation<<'\t';
-            out << hex << pc << '\t';
+//            out << hex << operation<<'\t';
+//            out << hex << pc << '\t';
 
             inst.decode();
 
-            out << "operation ";
-            print_thing(inst.op);
-            out << endl;
+ //           out << "operation ";
+ //           print_thing(inst.op);
+ //           out << endl;
 
             inst.execute();
             
             pc += 4;
             inst.memory();
 
-            if (tick == 31855)
-            {
-//                cout << endl << endl << inst.op << ' ' << inst.rs1 << ' ' <<regs[inst.rs1]<<' '<< inst.rs2<<' '<<regs[inst.rs2]<< ' ' << (int)inst.imm<< ' ';
-            }
 //            cout << ' ' << (int)regs[10]<<'\t'<<tick<<endl;
             tick++;
         }
