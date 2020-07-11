@@ -9,7 +9,7 @@ EXEC=main
 start: $(OBJS)
 	$(CC) -o $(EXEC) $(OBJS)
 
-.c.o:
+.cpp.o:
 	$(CC) -Wall -o $@ -c $<
 
 clean:
