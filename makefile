@@ -10,7 +10,7 @@ start: $(OBJS)
 	$(CC) -o $(EXEC) $(OBJS)
 
 .cpp.o:
-	$(CC) -Wall -o $@ -c $<
+	$(CC) -Wall -o $@ -cpp $<
 
 clean:
 	rm -rf $(EXEC) $(OBJS)
