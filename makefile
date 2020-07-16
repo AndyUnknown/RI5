@@ -1,12 +1,6 @@
-.SUFFIXES:.cpp .o
+cmake_minimum_required(VERSION 3.10)
+project(RI5)
 
-CC=g++ -fPIC
+set(CMAKE_CXX_STANDARD 14)
 
-SRCS=main.cpp
-OBJS=$(SRCS:.cpp=.o)
-EXEC=main
-.cpp.o:
-	$(CC) -Wall -o $@ -cpp $<
-
-clean:
-	rm -rf $(EXEC) $(OBJS)
+add_executable(code main.cpp)
