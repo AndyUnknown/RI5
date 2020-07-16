@@ -3,33 +3,33 @@
 #include <iostream>
 #include <cmath>
 using namespace std;
-int rom[1 << 20];
+int *rom;
 unsigned int pc = 0;
 unsigned int regs[32];
-bool flag=true;
+bool flag = true;
 //ofstream out;
-
+int tick = 1;
 
 enum INSTRUCTIONS {
-    LUI,      //U
-    AUIPC,    //U  
-    JAL,      //J
-    JALR,     //I
-    BEQ,      //B
-    BNE,      //B
-    BLT,      //B
-    BGE,      //B
-    BLTU,     //B
-    BGEU,     //B
-    LB,       //I
-    LH,       //I
-    LW,       //I
-    LBU,      //I
-    LHU,      //I
-    SB,       //S
-    SH,       //S
-    SW,       //S
-    ADDI,     //I
+    LUI,      
+    AUIPC,     
+    JAL,      
+    JALR,     
+    BEQ,      
+    BNE,      
+    BLT,      
+    BGE,      
+    BLTU,     
+    BGEU,     
+    LB,       
+    LH,       
+    LW,       
+    LBU,      
+    LHU,      
+    SB,       
+    SH,       
+    SW,       
+    ADDI,     
     SLTI,
     SLTIU,
     XORI,
@@ -38,7 +38,7 @@ enum INSTRUCTIONS {
     SLLI,
     SRLI,
     SRAI,
-    ADD,      //R
+    ADD,      
     SUB,
     SLL,
     SLT,
@@ -49,163 +49,143 @@ enum INSTRUCTIONS {
     OR,
     AND
 };
-/*
+
 void print_thing(int i)
 {
     switch (i)
     {
     case 0:
-        out << "LUI";
+        cout << "LUI";
         break;
     case 1:
-        out << "AUIPC";
+        cout << "AUIPC";
         break;
     case 2:
-        out << "JAL";
+        cout << "JAL";
         break;
     case 3:
-        out << "JALR";
+        cout << "JALR";
         break;
     case 4:
-        out << "BEQ";
+        cout << "BEQ";
         break;
     case 5:
-        out << "BNE";
+        cout << "BNE";
         break;
     case 6:
-        out << "BLT";
+        cout << "BLT";
         break;
     case 7:
-        out << "BGE";
+        cout << "BGE";
         break;
     case 8:
-        out << "BLTU";
+        cout << "BLTU";
         break;
     case 9:
-        out << "BGEU";
+        cout << "BGEU";
         break;
     case 10:
-        out << "LB";
+        cout << "LB";
         break;
     case 11:
-        out << "LH";
+        cout << "LH";
         break;
     case 12:
-        out << "LW";
+        cout << "LW";
         break;
     case 13:
-        out << "LBU";
+        cout << "LBU";
         break;
     case 14:
-        out << "LHU";
+        cout << "LHU";
         break;
     case 15:
-        out << "SB";
+        cout << "SB";
         break;
     case 16:
-        out << "SH";
+        cout << "SH";
         break;
     case 17:
-        out << "SW";
+        cout << "SW";
         break;
     case 18:
-        out << "ADDI";
+        cout << "ADDI";
         break;
     case 19:
-        out << "SLTI";
+        cout << "SLTI";
         break;
     case 20:
-        out << "SLTIU";
+        cout << "SLTIU";
         break;
     case 21:
-        out << "XORI";
+        cout << "XORI";
         break;
     case 22:
-        out << "ORI";
+        cout << "ORI";
         break;
     case 23:
-        out << "ANDI";
+        cout << "ANDI";
         break;
     case 24:
-        out << "SLLI";
+        cout << "SLLI";
         break;
     case 25:
-        out << "SRLI";
+        cout << "SRLI";
         break;
     case 26:
-        out << "SRAI";
+        cout << "SRAI";
         break;
     case 27:
-        out << "ADD";
+        cout << "ADD";
         break;
     case 28:
-        out << "SUB";
+        cout << "SUB";
         break;
     case 29:
-        out << "SLL";
+        cout << "SLL";
         break;
     case 30:
-        out << "SLT";
+        cout << "SLT";
         break;
     case 31:
-        out << "SLTU";
+        cout << "SLTU";
         break;
     case 32:
-        out << "XOR";
+        cout << "XOR";
         break;
     case 33:
-        out << "SRL";
+        cout << "SRL";
         break;
     case 34:
-        out << "SRA";
+        cout << "SRA";
         break;
     case 35:
-        out << "OR";
+        cout << "OR";
         break;
     case 36:
-        out << "AND";
+        cout << "AND";
         break;
     }
 }
-*/
+
+
 int X_to_D(char* s, int X_len)
 {
     char* tmp;
     tmp = new char[X_len];
-
-    int i = 0;
+    for (int i = 0;i < X_len;++i)
+        tmp[i] = '0';
     int result = 0, k = 1;
-    for (i = 0;i < X_len;++i)
+    for (int i = 0;i < X_len;++i)
     {
-        if (s[i] >= '0' && s[i] <= '9')
-        {
-            tmp[i] = s[i] - '0';
-        }
-        else
-        {
-            switch (s[i])
-            {
-            case'a':case 'A':tmp[i] = 10;
-                break;
-            case'b':case 'B':tmp[i] = 11;
-                break;
-            case'c':case 'C':tmp[i] = 12;
-                break;
-            case'd':case 'D':tmp[i] = 13;
-                break;
-            case'e':case 'E':tmp[i] = 14;
-                break;
-            case'f':case 'F':tmp[i] = 15;
-                break;
-            }
-        }
+        if (s[i] < 'A') tmp[i] = s[i] - '0';
+        else tmp[i] = s[i] - 'A' + 10;
         result += (long long)(tmp[i]) * k;
         k *= 16;
     }
-
+    delete[] tmp;
     return result;
 }
-
 bool read_in()
 {
 
@@ -251,8 +231,6 @@ bool read_in()
         return false;
     return true;
 }
-
-//从模拟内存得到一条指令,转为unsigned int
 unsigned int get_inst()
 {
     char ch[8];
@@ -270,8 +248,8 @@ unsigned int get_inst()
         else ch[i] = ch[i] - 'A' + 10;
         ans |= ((unsigned int)(ch[i]) << (i << 2));
     }
-
-//    cout << hex << ans << '\t' << dec;
+    pc += 4;
+    //    cout << hex << ans << '\t' << dec;
     return ans;
 
 }
@@ -281,7 +259,8 @@ struct instruction
     unsigned int bin;
     INSTRUCTIONS op;
     char type;
-    unsigned int rs1, rs2, rd, imm=0, adress=0;
+    unsigned int rs1=255, rs2=255, rd=255, imm = 0, adress = 0, rom_content = 0, calc_res = 0;
+    bool has_ex = 0,has_id=0;
     instruction(unsigned int num)
     {
         bin = num;
@@ -290,7 +269,6 @@ struct instruction
         unsigned int func7 = (num >> 25) % (1 << 7);
         switch (opcode)
         {
-
         case 0b0110111:
             op = LUI;
             break;
@@ -471,9 +449,9 @@ struct instruction
         else if (op == BEQ || op == BNE || op == BLT || op == BLTU || op == BGE || op == BGEU)type = 'B';
         else if (op == LW || op == LH || op == LHU || op == LB || op == LBU)type = 'I';
         else if (op == SW || op == SH || op == SB)type = 'S';
-//        cout <<' ' << op << '\t';
+        
     }
-
+    ~instruction(){}
     void decode()
     {
         if (type == 'U')
@@ -528,75 +506,43 @@ struct instruction
     }
     void execute()
     {
-        if (rd == 0 && op != JAL && op != JALR&& type!='B' && type != 'S')
-            return;
-        if (type == 'U')
+        if (type == 'I')
         {
-            if (op == LUI)
+            if (op == ADDI)
             {
-                regs[rd] = imm;
-            }
-        }
-        else if (type == 'J')
-        {
-            if (op == JAL)
-            {
-                if(rd!=0)
-                    regs[rd] = pc + 4;
-                pc += (int)imm;
-                pc -= 4;
-            }
-        }
-        else if (type == 'I')
-        {
-            if (op == JALR)
-            {
-                if(rd!=0)
-                    regs[rd] = pc + 4;
-                pc = (int)((imm + regs[rs1])>>1)<<1 ;
-                pc -= 4;
-            }
-            else if (op == ADDI)
-            {
-                regs[rd] = regs[rs1] + imm;
+                calc_res = regs[rs1] + imm;
             }
             else if (op == SLTI)
             {
-                if ((int)regs[rs1] < (int)imm)
-                    regs[rd] = 1;
-                else
-                    regs[rd] = 0;
+                calc_res = ((int)regs[rs1] < (int)imm);
             }
             else if (op == SLTIU)
             {
-                if ((int)regs[rs1] < (int)imm)
-                    regs[rd] = 1;
-                else
-                    regs[rd] = 0;
+                calc_res = ((int)regs[rs1] < (int)imm);
             }
             else if (op == ANDI)
             {
-                regs[rd] = regs[rs1] & imm;
+                calc_res = regs[rs1] & imm;
             }
             else if (op == ORI)
             {
-                regs[rd] = regs[rs1] | imm;
+                calc_res = regs[rs1] | imm;
             }
             else if (op == XORI)
             {
-                regs[rd] = regs[rs1] ^ imm;
+                calc_res = regs[rs1] ^ imm;
             }
             else if (op == SLLI)
             {
-                regs[rd] = regs[rs1] << (imm & 31UL);
+                calc_res = regs[rs1] << (imm & 31UL);
             }
             else if (op == SRLI)
             {
-                regs[rd] = regs[rs1] >> (imm & 31UL);
+                calc_res = regs[rs1] >> (imm & 31UL);
             }
             else if (op == SRAI)
             {
-                regs[rd] = (int)regs[rs1] >> (imm & 31UL);
+                calc_res = (int)regs[rs1] >> (imm & 31UL);
             }
             else
             {
@@ -607,258 +553,513 @@ struct instruction
         {
             if (op == BEQ)
             {
-                
-                if (regs[rs1] == regs[rs2])
-                {
-                    pc += imm;
-                    pc -= 4;
-                }
+
+                if (regs[rs1] == regs[rs2])calc_res = 1;
+                else calc_res=0;
             }
             else if (op == BNE)
             {
-                if (regs[rs1] != regs[rs2])
-                {
-                    pc += imm;
-                    pc -= 4;
-                }
+                if (regs[rs1] != regs[rs2])calc_res = 1;
+                else calc_res = 0;
             }
             else if (op == BLT)
             {
-                if ((int)regs[rs1] < (int)regs[rs2])
-                {
-                    pc += imm;
-                    pc -= 4;
-                }
+                if ((int)regs[rs1] < (int)regs[rs2])calc_res = 1;
+                else calc_res = 0;
             }
             else if (op == BLTU)
             {
-                if (regs[rs1] < regs[rs2])
-                {
-                    pc += imm;
-                    pc -= 4;
-                }
+                if (regs[rs1] < regs[rs2])calc_res = 1;
+                else calc_res = 0;
             }
             else if (op == BGE)
             {
-                if ((int)regs[rs1] >= (int)regs[rs2])
-                {
-                    pc += imm;
-                    pc -= 4;
-                }
+                if ((int)regs[rs1] >= (int)regs[rs2])calc_res = 1;
+                else calc_res = 0;
             }
             else if (op == BGEU)
             {
-                if (regs[rs1] >= regs[rs2])
-                {
-                    pc += imm;
-                    pc -= 4;
-                }
+                if (regs[rs1] >= regs[rs2])calc_res = 1;
+                else calc_res = 0;
             }
         }
         else if (type == 'R')
         {
             if (op == ADD)
             {
-                regs[rd] = regs[rs1] + regs[rs2];
+                calc_res = regs[rs1] + regs[rs2];
             }
             else if (op == SUB)
             {
-                regs[rd] = regs[rs1] - regs[rs2];
+                calc_res = regs[rs1] - regs[rs2];
             }
             else if (op == SLL)
             {
-                regs[rd] = regs[rs1] << (regs[rs2] & 31UL);
+                calc_res = regs[rs1] << (regs[rs2] & 31UL);
             }
             else if (op == SRL)
             {
-                regs[rd] = regs[rs1] >> (regs[rs2] & 31UL);
+                calc_res = regs[rs1] >> (regs[rs2] & 31UL);
             }
             else if (op == SRA)
             {
-                regs[rd] = ((int)regs[rs1]) >> (regs[rs2] & 31UL);
+                calc_res = ((int)regs[rs1]) >> (regs[rs2] & 31UL);
             }
             else if (op == SLT)
             {
-                if ((int)regs[rs1] < (int)regs[rs2])
-                    regs[rd] = 1;
-                else
-                    regs[rd] = 0;
+                calc_res = ((int)regs[rs1] < (int)regs[rs2]);
             }
             else if (op == SLTU)
             {
-                if (regs[rs1] < regs[rs2])
-                    regs[rd] = 1;
-                else
-                    regs[rd] = 0;
+                calc_res = (regs[rs1] < regs[rs2]);
             }
             else if (op == AND)
             {
-                regs[rd] = regs[rs1] & regs[rs2];
+                calc_res = regs[rs1] & regs[rs2];
             }
             else if (op == OR)
             {
-                regs[rd] = regs[rs1] | regs[rs2];
+                calc_res = regs[rs1] | regs[rs2];
             }
             else if (op == XOR)
             {
-                regs[rd] = regs[rs1] ^ regs[rs2];
+                calc_res = regs[rs1] ^ regs[rs2];
             }
         }
         else if (type == 'S')
         {
             adress = regs[rs1] + (int)imm;
+            calc_res = regs[rs2];
         }
+        
     }
     void memory()
     {
-        if (type=='I'&&rd == 0)
+        if (type == 'I' && rd == 0)
             return;
         if (type == 'I')
         {
             if (op == LB)
             {
-                char ch[2];
-                ch[1] = rom[adress] / 16 + '0';
-                ch[0] = rom[adress] % 16 + '0';
-                unsigned int res = 0;
-                for (int i = 0;i < 2;i++) {
-                    if (ch[i] < 'A') ch[i] = ch[i] - '0';
-                    else ch[i] = ch[i] - 'A' + 10;
-                    res |= ((unsigned int)(ch[i]) << (i << 2));
-                }
-                regs[rd] = (int)res;
+                rom_content += (char)rom[adress];
             }
             else if (op == LH)
             {
-                char ch[4];
-                ch[1] = rom[adress] / 16 + '0';
-                ch[0] = rom[adress] % 16 + '0';
-                ch[3] = rom[adress + 1] / 16 + '0';
-                ch[2] = rom[adress + 1] % 16 + '0';
-                unsigned int res = 0;
-                for (int i = 0;i < 4;i++) {
-                    if (ch[i] < 'A') ch[i] = ch[i] - '0';
-                    else ch[i] = ch[i] - 'A' + 10;
-                    res |= ((unsigned int)(ch[i]) << (i << 2));
-                }
-                regs[rd] = (int)res;
+                rom_content += (char)rom[adress + 1];
+                rom_content = rom_content << 8;
+                rom_content += (char)rom[adress];
+               
             }
             else if (op == LW)
             {
-                char ch[8];
-                ch[1] = rom[adress] / 16 + '0';
-                ch[0] = rom[adress] % 16 + '0';
-                ch[3] = rom[adress + 1] / 16 + '0';
-                ch[2] = rom[adress + 1] % 16 + '0';
-                ch[5] = rom[adress + 2] / 16 + '0';
-                ch[4] = rom[adress + 2] % 16 + '0';
-                ch[7] = rom[adress + 3] / 16 + '0';
-                ch[6] = rom[adress + 3] % 16 + '0';
-                unsigned int res = 0;
-                for (int i = 0;i < 8;i++) {
-                    if (ch[i] < 'A') ch[i] = ch[i] - '0';
-                    else ch[i] = ch[i] - 'A' + 10;
-                    res |= ((unsigned int)(ch[i]) << (i << 2));
-                }
-                regs[rd] = (int)res;
+                rom_content += rom[adress + 3];
+                rom_content = rom_content << 8;
+                rom_content += rom[adress + 2];
+                rom_content = rom_content << 8;
+                rom_content += rom[adress + 1];
+                rom_content = rom_content << 8;
+                rom_content += rom[adress];
             }
             else if (op == LBU)
             {
-                char ch[2];
-                ch[1] = rom[adress] / 16 + '0';
-                ch[0] = rom[adress] % 16 + '0';
-                unsigned int res = 0;
-                for (int i = 0;i < 2;i++) {
-                    if (ch[i] < 'A') ch[i] = ch[i] - '0';
-                    else ch[i] = ch[i] - 'A' + 10;
-                    res |= ((unsigned int)(ch[i]) << (i << 2));
-                }
-                regs[rd] = res;
+                rom_content += rom[adress];
             }
             else if (op == LHU)
             {
-                char ch[4];
-                ch[1] = rom[adress] / 16 + '0';
-                ch[0] = rom[adress] % 16 + '0';
-                ch[3] = rom[adress + 1] / 16 + '0';
-                ch[2] = rom[adress + 1] % 16 + '0';
-                unsigned int res = 0;
-                for (int i = 0;i < 4;i++) {
-                    if (ch[i] < 'A') ch[i] = ch[i] - '0';
-                    else ch[i] = ch[i] - 'A' + 10;
-                    res |= ((unsigned int)(ch[i]) << (i << 2));
-                }
-                regs[rd] = res;
+                rom_content += rom[adress + 1];
+                rom_content = rom_content << 8;
+                rom_content += rom[adress];
             }
         }
         else if (type == 'S')
         {
             if (op == SB)
             {
-                rom[adress] = (regs[rs2] % (1 << 8));
+                rom[adress] = (calc_res % (1 << 8));
             }
             else if (op == SH)
             {
-                rom[adress] = (regs[rs2] % (1 << 8));
-                rom[adress + 1] = ((regs[rs2] >> 8) % (1 << 8));
+                rom[adress] = (calc_res % (1 << 8));
+                rom[adress + 1] = ((calc_res >> 8) % (1 << 8));
             }
             else if (op == SW)
             {
-                rom[adress] = (regs[rs2] % (1 << 8));
-                rom[adress + 1] = ((regs[rs2] >> 8) % (1 << 8));
-                rom[adress + 2] = ((regs[rs2] >> 16) % (1 << 8));
-                rom[adress + 3] = ((regs[rs2] >> 24) % (1 << 8));
+                rom[adress] = (calc_res % (1 << 8));
+                rom[adress + 1] = ((calc_res >> 8) % (1 << 8));
+                rom[adress + 2] = ((calc_res >> 16) % (1 << 8));
+                rom[adress + 3] = ((calc_res >> 24) % (1 << 8));
             }
         }
     }
+    void write_back()
+    {
+        if (rd == 0)
+            return;
+        if (type == 'I')
+        {
+            if (op == LB || op == LH || op == LW)
+            {
+                regs[rd] = (int)rom_content;
+            }
+            else if (op == LBU || op == LHU)
+            {
+                regs[rd] = rom_content;
+            }
+            else
+            {
+                regs[rd] = calc_res;
+            }
+        }
+        else if (type == 'U')
+        {
+            if (op == LUI)
+            {
+                regs[rd] = imm;
+            }
+        }
+        else if (type == 'R' || type == 'J')
+        {
+            regs[rd] = calc_res;
+        }
+    }
 };
+
+struct streamline
+{
+    instruction* IF, * ID, * EX, * MEM, * WB, * sleep;
+    bool final_order = 0, has_sleep = 0;
+    unsigned int mem_tick = 0;
+    int branch_buffer = 0;
+    int correct_prediction=0, total_prediction=0;
+    struct saver
+    {
+        int predict_res;
+        unsigned int pc_alternative;
+    };
+    saver branch;
+    bool branch_prediction()
+    {
+        if (branch_buffer == 0)return 0;
+        else if (branch_buffer == 1)return 0;
+        else if (branch_buffer == 2)return 1;
+        else if (branch_buffer == 3)return 1;
+    }
+    bool need_mem(instruction* EX)
+    {
+        if (EX && (EX->type == 'S' || EX->op == LW || EX->op == LB || EX->op == LH || EX->op == LBU || EX->op == LHU))
+            return 1;
+        else
+            return 0;
+    }
+    void get_branch()
+    {
+        branch.predict_res = branch_prediction();
+        if (branch.predict_res)
+            branch.pc_alternative = pc;
+        else
+            branch.pc_alternative = pc + ID->imm - 4;
+        if (branch.predict_res)
+            pc += ID->imm - 4;
+        
+    }
+    void test_branch()
+    {
+        if (EX && EX->type == 'B' && EX->calc_res != branch.predict_res)
+        {
+            total_prediction += 1;
+            if (branch_buffer == 0)branch_buffer = 1;
+            else if (branch_buffer == 1)branch_buffer = 2;
+            else if (branch_buffer == 2)branch_buffer = 1;
+            else if (branch_buffer == 3)branch_buffer = 2;
+            delete IF;
+            delete ID;
+            IF = NULL;
+            ID = NULL;
+            pc = branch.pc_alternative;
+        }
+        else if (EX && EX->type == 'B' && EX->calc_res == branch.predict_res)
+        {
+            total_prediction += 1;
+            correct_prediction += 1;
+            if (branch_buffer == 0)branch_buffer = 0;
+            else if (branch_buffer == 1)branch_buffer = 0;
+            else if (branch_buffer == 2)branch_buffer = 3;
+            else if (branch_buffer == 3)branch_buffer = 3;
+        }
+
+    }
+    void instruction_fetch()
+    {
+        if (!final_order&&!IF)
+        {
+            int num = get_inst();
+            if (num == 0x0ff00513)
+            {
+                final_order = 1;
+                IF = NULL;
+            }
+            else
+                IF = new instruction(num);
+        }
+    }
+    void instruction_decode()
+    {
+        if (ID&&ID->has_id == 1)
+            return;
+        if (ID)
+            ID->has_id = 1;
+        if (ID)ID->decode();
+        if (ID && ID->op == JALR)
+        {
+            ID->calc_res = pc;
+            pc = (int)((ID->imm + regs[ID->rs1]) >> 1) << 1;
+        }
+        else if (ID && ID->op == JAL)
+        {
+            ID->calc_res = pc;
+            pc += (int)(ID->imm);
+            pc -= 4;
+        }
+        else if (ID && ID->type == 'B')
+        {
+            get_branch();
+        }
+    }
+    void execute()
+    {
+        if (EX&&EX->has_ex == 1)
+            return;
+        if (EX)
+            EX->has_ex = 1;
+        if (EX)EX->execute();
+        test_branch();
+    }
+    void hazard_deal()
+    {
+        has_sleep = 1;
+        sleep = EX;
+        EX = NULL;
+    }
+    void end_suspension()
+    {
+        EX = sleep;
+        sleep = NULL;
+    }
+    void carry_out()//WB->hazard_deal->MEM->suspend/end_suspend->EX->ID->IF
+    {
+        //WB&MEM
+        if (WB)WB->write_back();
+        if ((EX&&MEM)&&((EX->rs1 == MEM->rd && MEM->rd !=255) || (EX->rs2 == MEM->rd && MEM->rd != 255) || (EX->rd == MEM->rd && MEM->rd != 255)))//hazard
+        {
+            hazard_deal();
+        }
+        if (MEM)
+        {
+            if(mem_tick == 0)
+                MEM->memory();
+            mem_tick += 1;
+            if (mem_tick <= 0)
+                return;
+            else
+                mem_tick = 0;
+        }
+        if (has_sleep)
+            return;
+
+
+        //EX
+        execute();
+
+        //ID
+        instruction_decode();
+
+        //IF
+        instruction_fetch();
+        
+    }
+    void next_round()
+    {
+        //have_sleep=1表示应该等待mem操作完成再继续流水
+
+        
+        if (WB)
+        {
+            delete WB;
+            WB = NULL;
+        }
+        if(has_sleep)
+        {
+            int i = 0;
+        }
+        /*
+        if (mem_tick == 0 && !has_sleep && EX&& !need_mem(EX)&&!MEM)
+        {
+            WB = EX;
+            EX = ID;
+            ID = IF;
+            IF = NULL;
+        }
+        else if (mem_tick == 0 && !has_sleep && EX && !need_mem(EX) && MEM)
+        {
+            WB = MEM;
+        }
+        else if (mem_tick == 0 && !has_sleep && EX && need_mem(EX))
+        {
+            WB = MEM;
+            MEM = EX;
+            EX = ID;
+            ID = IF;
+            IF = NULL;
+        }
+        else if (has_sleep && mem_tick == 0)
+        {
+            WB = MEM;
+            MEM = NULL;
+            has_sleep = 0;
+        }
+        else if (mem_tick == 0 && MEM)
+        {
+            WB = MEM;
+            MEM = NULL;
+        }
+        else if(mem_tick!=0&&!has_sleep&&(EX&&!need_mem(EX)))
+        {
+            WB = EX;
+            EX = ID;
+            ID = IF;
+            IF = NULL;
+        }
+        else if(!(mem_tick!=0&&!has_sleep&&EX&&need_mem(EX)))
+        {
+            EX = ID;
+            ID = IF;
+            IF = NULL;
+        }
+        */                                             
+        /*
+        if (mem_tick == 0)
+        {
+            WB = MEM;
+            MEM = NULL;
+            if (!has_sleep)
+            {
+                MEM = EX;
+                EX = ID;
+                ID = IF;
+                IF = NULL;
+            }
+            has_sleep = 0;
+        }
+        */
+
+        
+        if (MEM)//有MEM
+        {
+            
+            if (EX && need_mem(EX))//EX要用mem
+            {
+                if (mem_tick == 0)//MEM做完了
+                {
+                    WB = MEM;
+                    MEM = EX;
+                    EX = ID;
+                    ID = IF;
+                    IF = NULL;
+                
+                    has_sleep = 0;
+                }
+                //MEM没做完继续做
+            }
+            else if (has_sleep)//EX在睡眠
+            {
+                if (mem_tick == 0)//MEM做完了
+                {
+                    WB = MEM;
+                    MEM = NULL;
+                    has_sleep = 0;//起床
+                }
+                //MEM没做完继续做
+            }
+            else if (!need_mem(EX))//EX不要用mem
+            {
+                if (mem_tick == 0)//MEM做完了
+                {
+                    WB = MEM;
+                    MEM = NULL;
+                }
+                else//MEM没做完
+                {
+                    WB = EX;
+                    EX = ID;
+                    ID = IF;
+                    IF = NULL;
+                }
+            }  
+        }
+        else//没有MEM操作，显然没人睡觉
+        {
+            if (EX && need_mem(EX))//EX要用mem
+            {
+                MEM = EX;
+                EX = ID;
+                ID = IF;
+                IF = NULL;
+            }
+            else if (!need_mem(EX))//EX不要用mem或者没用EX
+            {
+                WB = EX;
+                EX = ID;
+                ID = IF;
+                IF = NULL;
+            }
+        }
+
+
+        if (!has_sleep && sleep)
+        {
+            end_suspension();
+        }
+
+    }
+    bool has_end()
+    {
+        return ( WB == NULL && MEM == NULL && EX == NULL && WB == NULL && final_order);
+    }
+    streamline()
+    {
+        IF= NULL;
+        ID = NULL;
+        EX = NULL;
+        MEM = NULL;
+        WB = NULL;
+        sleep = NULL;
+    }
+};
+
 int main()
 {
-    ;
     char operation[32];
+    rom = new int[1 << 20];
     for (int i = 0;i < (1 << 20);++i)
         rom[i] = 0;
 
-//    out.open("res.txt");
+    //    out.open("res.txt");
     read_in();
-    int tick = 1;
-    while(1)
+
+    
+    streamline st;
+
+    
+    while (!st.has_end())
     {
-        unsigned int operation = get_inst();
-        if (operation == 0x0ff00513)
-        {
-            cout << (((unsigned int)regs[10]) & 255u );
-            break;
-        }
-        else
-        {
-            
-//            cout << hex << pc << dec ;
-//            out <<dec << "current tick "<<tick<<'\t';
-            regs[0] = 0;
-            instruction inst(operation);
-
-//            out << hex << operation<<'\t';
-//            out << hex << pc << '\t';
-
-            inst.decode();
-
- //           out << "operation ";
- //           print_thing(inst.op);
- //           out << endl;
-
-            inst.execute();
-            
-            pc += 4;
-            inst.memory();
-
-//            cout << ' ' << (int)regs[10]<<'\t'<<tick<<endl;
-            tick++;
-        }
-        
+        st.carry_out();
+        st.next_round();
+        tick += 1;
     }
-        
-    return 0;
+    cout << (((unsigned int)regs[10]) & 255u) << endl;
+    //cout << st.correct_prediction << '/' << st.total_prediction;
+    delete[] rom;
+   
 
 
 }
